@@ -4,6 +4,7 @@ MAINTAINER Katoma
 
 ENV TERRAFORM_VERSION=0.11.7
 ENV PACKER_VERSION=1.2.3
+ENV DOCKER_VERSION=18.03.1-ce
 ENV GCLOUD_VERSION=202.0.0
 ENV OC_VERSION=v3.9.0
 ENV OC_HASH=191fece
@@ -38,6 +39,11 @@ RUN echo "## Install Basic Tools" \
     && curl -s -o /tmp/packer.zip \
           https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip \
     && unzip -q -d /usr/local/bin /tmp/packer.zip \
+    && echo "### Install Tool : Docker" \
+    && curl -s -L -o /tmp/docker.tgz \
+          https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz \
+    && tar -zx -C /tmp -f /tmp/docker.tgz \
+    && mv /tmp/docker/docker /usr/local/bin \
     && echo "### Install Tool : Google SDK" \
     && curl -s -o /tmp/gcloud.tgz \
           https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GCLOUD_VERSION}-linux-x86_64.tar.gz \
@@ -54,7 +60,7 @@ RUN echo "## Install Basic Tools" \
     && echo "### Install Tool : OpenShift Client" \
     && curl -s -L -o /tmp/oc.tgz \
           https://github.com/openshift/origin/releases/download/${OC_VERSION}/openshift-origin-client-tools-${OC_VERSION}-${OC_HASH}-linux-64bit.tar.gz \
-    && tar zx -C /tmp -f /tmp/oc.tgz \
+    && tar -zx -C /tmp -f /tmp/oc.tgz \
     && cp /tmp/openshift-origin-client-tools-${OC_VERSION}-${OC_HASH}-linux-64bit/oc /usr/local/bin/ \
     && echo "## Add User" \
     && if [ "$HOSTOS" == "mac" ]; then groupdel dialout; fi \
