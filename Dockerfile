@@ -23,6 +23,7 @@ RUN echo "## Install Basic Tools" \
             shadow \
             openssh \
             git \
+            rsync \
     && echo "### Install Tool : Bash Completion" \
     && apk add --no-cache \
             bash-completion \
