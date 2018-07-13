@@ -24,6 +24,7 @@ RUN echo "## Install Basic Tools" \
             openssh \
             git \
             rsync \
+            sudo \
     && echo "### Install Tool : Bash Completion" \
     && apk add --no-cache \
             bash-completion \
@@ -68,6 +69,7 @@ RUN echo "## Install Basic Tools" \
     && groupadd -g ${PGID} ${GROUP} \
     && useradd -u ${PUID} -U -d /home/${USER} -s /bin/bash ${USER} \
     && usermod -G ${GROUP} ${USER} \
+    && echo "${USER} ALL=NOPASSWD: ALL" >> /etc/sudoers \
     && echo "## Adjust Rights" \
     && chmod +x /docker-entrypoint.sh \
     && echo "## Clean-up" \
