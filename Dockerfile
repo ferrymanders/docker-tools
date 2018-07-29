@@ -8,13 +8,18 @@ ENV DOCKER_VERSION=18.03.1-ce
 ENV GCLOUD_VERSION=208.0.2
 ENV OC_VERSION=v3.9.0
 ENV OC_HASH=191fece
+ENV GLIBC_VERSION=2.27-r0
+ENV GLIBC_URL=https://github.com/sgerrand/alpine-pkg-glibc/releases/download
+ENV GLIBC_PUB=https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub
 ENV PUID=1001
 ENV USER=ferry
 ENV PGID=20
 ENV GROUP=staff
 ENV HOSTOS=mac
+ENV LANG=C.UTF-8
 
 ADD docker-entrypoint.sh /docker-entrypoint.sh
+
 RUN echo "## Install Basic Tools" \
     && apk add --no-cache \
             curl \
@@ -25,6 +30,20 @@ RUN echo "## Install Basic Tools" \
             git \
             rsync \
             sudo \
+            ca-certificates \
+    && echo "## Install glibc" \
+    && curl -s -L -o /tmp/glibc-${GLIBC_VERSION}.apk ${GLIBC_URL}/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk \
+    && curl -s -L -o /tmp/glibc-bin-${GLIBC_VERSION}.apk ${GLIBC_URL}/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk \
+    && curl -s -L -o /tmp/glibc-i18n-${GLIBC_VERSION}.apk ${GLIBC_URL}/${GLIBC_VERSION}/glibc-i18n-${GLIBC_VERSION}.apk \
+    && curl -s -L -o /etc/apk/keys/sgerrand.rsa.pub ${GLIBC_PUB} \
+    && apk add --no-cache \
+            /tmp/glibc-${GLIBC_VERSION}.apk \
+            /tmp/glibc-bin-${GLIBC_VERSION}.apk \
+            /tmp/glibc-i18n-${GLIBC_VERSION}.apk \
+    && rm /etc/apk/keys/sgerrand.rsa.pub \
+    && /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true \
+    && echo "export LANG=$LANG" > /etc/profile.d/locale.sh \
+    && apk del glibc-i18n \
     && echo "### Install Tool : Bash Completion" \
     && apk add --no-cache \
             bash-completion \
